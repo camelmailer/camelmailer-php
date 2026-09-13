@@ -1,9 +1,9 @@
-# CamelMailer PHP SDK
+# Camelmailer PHP SDK
 
 [![CI](https://github.com/camelmailer/camelmailer-php/actions/workflows/ci.yml/badge.svg)](https://github.com/camelmailer/camelmailer-php/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-PHP SDK for [CamelMailer](https://camelmailer.com) — transactional email, nothing else.
+PHP SDK for [Camelmailer](https://camelmailer.com) — transactional email, nothing else.
 
 Using Laravel? Grab [`camelmailer/camelmailer-laravel`](https://github.com/camelmailer/camelmailer-laravel) instead — it wires this SDK into Laravel's mail system.
 
@@ -32,7 +32,7 @@ echo $result->message_id;
 
 ## Self-hosted
 
-The client defaults to the CamelMailer cloud (`https://app.camelmailer.com`). Point it at your own instance:
+The client defaults to the Camelmailer cloud (`https://app.camelmailer.com`). Point it at your own instance:
 
 ```php
 $camelmailer = CamelMailer\CamelMailer::client('cm_xxxxxxxx', baseUrl: 'https://mail.example.com');
