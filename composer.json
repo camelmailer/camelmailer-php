@@ -1,12 +1,12 @@
 {
     "name": "camelmailer/camelmailer",
-    "description": "CamelMailer PHP SDK — transactional email, nothing else.",
+    "description": "Camelmailer PHP SDK — transactional email, nothing else.",
     "keywords": ["php", "camelmailer", "email", "transactional", "sdk", "api", "client"],
     "homepage": "https://camelmailer.com",
     "license": "MIT",
     "authors": [
         {
-            "name": "CamelMailer contributors",
+            "name": "Camelmailer contributors",
             "homepage": "https://github.com/camelmailer/camelmailer-php/contributors"
         }
     ],

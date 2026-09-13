@@ -21,4 +21,4 @@ composer analyse           # PHPStan, level max
 - Tests first: every resource method and error path has a unit test against the mocked PSR-18 transport.
 - No network in unit tests.
 - PHP 8.1 compatibility (CI runs 8.1–8.4).
-- New endpoints follow the OpenAPI spec of the CamelMailer API; responses are `ApiObject`s wrapping the envelope's `data`.
+- New endpoints follow the OpenAPI spec of the Camelmailer API; responses are `ApiObject`s wrapping the envelope's `data`.
