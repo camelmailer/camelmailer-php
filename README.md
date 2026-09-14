@@ -52,10 +52,27 @@ $camelmailer->emails->send([
     'tag' => 'receipt',
 ]);
 
-// Batch
+// Batch: one result per entry, in the order you passed them
 $camelmailer->emails->sendBatch([
     ['from' => 'a@acme.com', 'to' => ['x@example.com'], 'subject' => 'One'],
     ['from' => 'a@acme.com', 'to' => ['y@example.com'], 'subject' => 'Two'],
+]);
+
+// Retry-safe sends: the same key with the same body returns the first
+// result instead of sending twice. A different body under the same key is
+// refused with `InvalidIdempotentRequest`.
+$camelmailer->emails->send([
+    'from' => 'billing@acme.com',
+    'to' => ['ada@example.com'],
+    'subject' => 'Your receipt',
+], idempotencyKey: 'receipt-'.$orderId);
+
+// Broadcast to everyone subscribed to a stream (up to 1000 per call;
+// the response counts `queued` against `skipped`)
+$camelmailer->emails->sendToStream('newsletter', [
+    'from' => 'news@acme.com',
+    'subject' => 'September',
+    'text_body' => 'What shipped this month.',
 ]);
 
 // Stored templates ({{ variables }} are rendered against template_model)
@@ -97,6 +114,92 @@ $camelmailer->streams->update('broadcasts', ['name' => 'Newsletter']);
 $camelmailer->streams->archive('broadcasts');
 ```
 
+### Campaigns
+
+A campaign is content plus an audience. The two ways to create one behave
+differently, so pick deliberately:
+
+```php
+// Write it and leave it alone. Without `scheduled_at` it stays a draft;
+// with one it becomes `scheduled` and the server sends it when due.
+$camelmailer->campaigns->createDraft([
+    'stream' => 'newsletter',
+    'name' => 'September',
+    'from' => 'news@acme.com',
+    'subject' => 'What shipped',
+    'text_body' => 'Hello.',
+    'scheduled_at' => '2026-10-01T09:00:00Z',
+]);
+
+// Create and send to the stream's subscribers straight away. The send
+// starts before this call returns.
+$camelmailer->campaigns->createAndSend('newsletter', [
+    'name' => 'September',
+    'from' => 'news@acme.com',
+    'subject' => 'What shipped',
+    'text_body' => 'Hello.',
+]);
+
+$camelmailer->campaigns->list();
+$camelmailer->campaigns->listForStream('newsletter');
+$camelmailer->campaigns->get(7);                  // with `stats`
+$camelmailer->campaigns->getForStream('newsletter', 7);
+$camelmailer->campaigns->update(7, ['subject' => 'Corrected']);
+$camelmailer->campaigns->update(7, ['scheduled_at' => null]); // back to draft
+$camelmailer->campaigns->send(7);                 // now, whatever the schedule said
+$camelmailer->campaigns->cancel(7);
+```
+
+### Subscribers
+
+A broadcast send to an address that is not subscribed is refused, so this
+list is the audience.
+
+```php
+$camelmailer->subscribers->list('newsletter');
+$camelmailer->subscribers->add('newsletter', ['address' => 'ada@example.com', 'name' => 'Ada']);
+$camelmailer->subscribers->import('newsletter', ['ada@example.com', 'grace@example.com']);
+$camelmailer->subscribers->complaint('newsletter', 'ada@example.com'); // suppress + unsubscribe
+$camelmailer->subscribers->remove('newsletter', 'ada@example.com');
+```
+
+### Layouts
+
+A layout wraps every template that uses it, so header, footer and styling
+live in one place. `html_wrapper` has to embed the body with `{{{ content }}}`.
+
+```php
+$camelmailer->layouts->list();
+$camelmailer->layouts->create([
+    'name' => 'Default',
+    'permalink' => 'default',
+    'html_wrapper' => '<html><body>{{{ content }}}</body></html>',
+]);
+$camelmailer->layouts->get('default');
+$camelmailer->layouts->update('default', ['name' => 'Main']);
+$camelmailer->layouts->uploadLogo('default', 'data:image/png;base64,...');
+$camelmailer->layouts->delete('default');
+```
+
+### Inbound and held messages
+
+```php
+$camelmailer->inbound->list(['status' => 'held']);
+$camelmailer->inbound->get(55);
+$camelmailer->inbound->retry(55);   // back on the delivery queue
+$camelmailer->inbound->bypass(55);  // release past the hold
+```
+
+### Logs
+
+Useful when a send did not arrive and the question is whether the request
+ever reached the API.
+
+```php
+$camelmailer->logs->list(['per_page' => 25]);
+$camelmailer->logs->tags();
+```
+
 ### Stats, bounces & DMARC
 
 ```php
@@ -132,6 +235,10 @@ try {
     $camelmailer->emails->send([...]);
 } catch (ErrorException $e) {
     $e->code;            // 'ValidationError', 'Unauthorized', 'NotFound', ...
+                         // 'SendLimitExceeded' (429): the 30-day allowance is
+                         //   used up, nothing was queued
+                         // 'InvalidIdempotentRequest' (409): the key was reused
+                         //   for a different body
     $e->getMessage();    // human-readable message
     $e->getStatusCode(); // HTTP status
 } catch (TransporterException $e) {

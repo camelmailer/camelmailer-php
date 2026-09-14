@@ -45,7 +45,11 @@ final class EmailsTest extends TestCase
         ]);
 
         $this->assertRequested('POST', '/api/v2/server/messages/batch');
-        $this->assertCount(2, $this->sentJson()['messages']);
+        // A bare JSON array. The endpoint deserializes a sequence, so a
+        // {"messages": [...]} wrapper is rejected before anything is queued.
+        $body = $this->sentJsonList();
+        $this->assertCount(2, $body);
+        $this->assertSame('x@example.com', $body[0]['to'][0]);
     }
 
     public function test_send_with_template(): void
@@ -76,7 +80,91 @@ final class EmailsTest extends TestCase
         ]);
 
         $this->assertRequested('POST', '/api/v2/server/messages/with_template/batch');
-        $this->assertCount(1, $this->sentJson()['messages']);
+        $this->assertCount(1, $this->sentJsonList());
+    }
+
+    public function test_send_carries_the_idempotency_key_as_a_header(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueEnvelope(['message_id' => 9], 201);
+
+        $client->emails->send([
+            'from' => 'billing@acme.com',
+            'to' => ['ada@example.com'],
+            'subject' => 'Your receipt',
+        ], idempotencyKey: 'receipt-2026-09-14');
+
+        $request = $this->assertRequested('POST', '/api/v2/server/messages');
+        $this->assertSame('receipt-2026-09-14', $request->getHeaderLine('Idempotency-Key'));
+        // The key stays out of the body, which is what the server hashes.
+        $this->assertArrayNotHasKey('idempotency_key', $this->sentJson());
+    }
+
+    public function test_send_without_an_idempotency_key_sends_no_header(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueEnvelope(['message_id' => 10], 201);
+
+        $client->emails->send(['from' => 'a@acme.com', 'to' => ['b@example.com']]);
+
+        $this->assertFalse($this->http->lastRequest()->hasHeader('Idempotency-Key'));
+    }
+
+    public function test_send_batch_carries_the_idempotency_key(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueEnvelope();
+
+        $client->emails->sendBatch(
+            [['from' => 'a@acme.com', 'to' => ['x@example.com']]],
+            idempotencyKey: 'batch-1',
+        );
+
+        $request = $this->assertRequested('POST', '/api/v2/server/messages/batch');
+        $this->assertSame('batch-1', $request->getHeaderLine('Idempotency-Key'));
+    }
+
+    public function test_send_to_stream(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueEnvelope(['queued' => 42, 'skipped' => 0], 202);
+
+        $result = $client->emails->sendToStream('newsletter', [
+            'from' => 'news@acme.com',
+            'subject' => 'September',
+            'text_body' => 'Hello.',
+        ]);
+
+        $this->assertRequested('POST', '/api/v2/server/streams/newsletter/send');
+        $this->assertSame(42, $result->queued);
+    }
+
+    public function test_reused_idempotency_key_surfaces_the_api_code(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueError('InvalidIdempotentRequest', 'This key was used for a different request.', 409);
+
+        try {
+            $client->emails->send(['from' => 'a@acme.com', 'to' => ['b@example.com']], idempotencyKey: 'reused');
+            $this->fail('Expected an ErrorException.');
+        } catch (ErrorException $exception) {
+            $this->assertSame('InvalidIdempotentRequest', $exception->getErrorCode());
+            $this->assertSame(409, $exception->getStatusCode());
+        }
+    }
+
+    public function test_send_limit_exceeded_surfaces_the_api_code(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueError('SendLimitExceeded', 'The send allowance is used up.', 429);
+
+        try {
+            $client->emails->send(['from' => 'a@acme.com', 'to' => ['b@example.com']]);
+            $this->fail('Expected an ErrorException.');
+        } catch (ErrorException $exception) {
+            $this->assertSame('SendLimitExceeded', $exception->getErrorCode());
+            $this->assertSame(429, $exception->getStatusCode());
+        }
     }
 
     public function test_list_with_filters(): void

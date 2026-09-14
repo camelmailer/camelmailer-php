@@ -29,7 +29,7 @@ final class HttpTransporter implements TransporterInterface
         $this->baseUrl = rtrim($baseUrl, '/');
     }
 
-    public function request(string $method, string $path, ?array $body = null, array $query = []): array
+    public function request(string $method, string $path, ?array $body = null, array $query = [], array $headers = []): array
     {
         $uri = $this->baseUrl.$path;
 
@@ -41,6 +41,10 @@ final class HttpTransporter implements TransporterInterface
             ->withHeader('Accept', 'application/json')
             ->withHeader('X-Server-API-Key', $this->apiKey)
             ->withHeader('User-Agent', 'camelmailer-php/'.CamelMailer::VERSION);
+
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
 
         if ($body !== null) {
             $request = $request
