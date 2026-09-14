@@ -32,6 +32,9 @@ final class Subscribers extends Resource
      * Add or update one subscriber. Upserts by address, so calling it
      * twice is safe.
      *
+     * Takes `address` (required) and `status` (`subscribed` by default,
+     * or `unsubscribed`). There is no name field.
+     *
      * @param  array<string, mixed>  $params
      */
     public function add(string $permalink, array $params): ApiObject

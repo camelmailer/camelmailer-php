@@ -26,11 +26,13 @@ final class SubscribersTest extends TestCase
 
         $client->subscribers->add('newsletter', [
             'address' => 'ada@example.com',
-            'name' => 'Ada Lovelace',
+            'status' => 'subscribed',
         ]);
 
         $this->assertRequested('POST', '/api/v2/server/streams/newsletter/subscribers');
         $this->assertSame('ada@example.com', $this->sentJson()['address']);
+        // The endpoint takes `address` and `status`; there is no name field.
+        $this->assertSame('subscribed', $this->sentJson()['status']);
     }
 
     public function test_import(): void
