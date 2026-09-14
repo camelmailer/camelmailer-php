@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-14
+
+### Added
+
+- `emails->sendWithTemplate()` takes an idempotency key. The API claims all
+  four send endpoints, so leaving it off made a template send the one thing
+  a retry could duplicate.
+
 ## [0.2.0] - 2026-09-14
 
 ### Fixed
@@ -45,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Typed exceptions with stable API error codes (`ErrorException->code`), transport and deserialization exceptions.
 - Immutable `ApiObject` responses with property and `ArrayAccess` reads.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-php/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-php/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.2.1
 [0.2.0]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.1.0

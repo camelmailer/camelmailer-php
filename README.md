@@ -66,6 +66,8 @@ $camelmailer->emails->send([
     'to' => ['ada@example.com'],
     'subject' => 'Your receipt',
 ], idempotencyKey: 'receipt-'.$orderId);
+// All four send methods take it: send, sendBatch, sendWithTemplate and
+// sendWithTemplateBatch.
 
 // Broadcast to everyone subscribed to a stream (up to 1000 per call;
 // the response counts `queued` against `skipped`)

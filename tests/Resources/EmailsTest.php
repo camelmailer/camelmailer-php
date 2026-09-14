@@ -124,6 +124,23 @@ final class EmailsTest extends TestCase
         $this->assertSame('batch-1', $request->getHeaderLine('Idempotency-Key'));
     }
 
+    public function test_send_with_template_carries_the_idempotency_key(): void
+    {
+        $client = $this->fakeClient();
+        $this->http->queueEnvelope(['message_id' => 11], 201);
+
+        $client->emails->sendWithTemplate([
+            'from' => 'hello@acme.com',
+            'to' => ['ada@example.com'],
+            'template' => 'welcome',
+        ], idempotencyKey: 'welcome-ada');
+
+        // The API claims all four send endpoints, so a template send is as
+        // replayable as a plain one.
+        $request = $this->assertRequested('POST', '/api/v2/server/messages/with_template');
+        $this->assertSame('welcome-ada', $request->getHeaderLine('Idempotency-Key'));
+    }
+
     public function test_send_to_stream(): void
     {
         $client = $this->fakeClient();
