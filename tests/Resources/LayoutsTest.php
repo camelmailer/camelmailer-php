@@ -66,12 +66,13 @@ final class LayoutsTest extends TestCase
     public function test_upload_logo(): void
     {
         $client = $this->fakeClient();
-        $this->http->queueEnvelope(['logo_url' => 'https://app.camelmailer.com/logos/default.png']);
+        $this->http->queueEnvelope(['url' => 'https://app.camelmailer.com/assets/layouts/l-1/logo']);
 
         $result = $client->layouts->uploadLogo('default', 'data:image/png;base64,iVBORw0KGgo=');
 
         $this->assertRequested('POST', '/api/v2/server/layouts/default/logo');
         $this->assertSame('data:image/png;base64,iVBORw0KGgo=', $this->sentJson()['data_url']);
-        $this->assertSame('https://app.camelmailer.com/logos/default.png', $result->logo_url);
+        // The endpoint answers with `url`, not `logo_url`.
+        $this->assertSame('https://app.camelmailer.com/assets/layouts/l-1/logo', $result->url);
     }
 }

@@ -62,8 +62,11 @@ final class Layouts extends Resource
     }
 
     /**
-     * Upload the layout's logo as a data URL (`data:image/png;base64,…`)
-     * and get back the absolute URL to reference from the wrapper.
+     * Upload the layout's logo as a data URL (`data:image/png;base64,…`).
+     *
+     * The absolute URL to reference from the wrapper comes back under
+     * `url`. It is served without authentication, because mail clients
+     * fetch it without a session.
      */
     public function uploadLogo(string $permalink, string $dataUrl): ApiObject
     {

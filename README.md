@@ -179,7 +179,7 @@ $camelmailer->layouts->create([
 ]);
 $camelmailer->layouts->get('default');
 $camelmailer->layouts->update('default', ['name' => 'Main']);
-$camelmailer->layouts->uploadLogo('default', 'data:image/png;base64,...');
+$camelmailer->layouts->uploadLogo('default', 'data:image/png;base64,...')->url;
 $camelmailer->layouts->delete('default');
 ```
 
