@@ -11,7 +11,7 @@ final class InboundTest extends TestCase
     public function test_list_with_filters(): void
     {
         $client = $this->fakeClient();
-        $this->http->queueEnvelope(['messages' => [], 'pagination' => ['page' => 1]]);
+        $this->http->queueEnvelope(['inbound' => [], 'pagination' => ['page' => 1]]);
 
         $client->inbound->list(['status' => 'held', 'per_page' => 50]);
 

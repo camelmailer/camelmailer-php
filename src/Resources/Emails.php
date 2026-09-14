@@ -66,9 +66,14 @@ final class Emails extends Resource
      *
      * @param  array<string, mixed>  $params
      */
-    public function sendWithTemplate(array $params): ApiObject
+    public function sendWithTemplate(array $params, ?string $idempotencyKey = null): ApiObject
     {
-        return $this->requestObject('POST', '/api/v2/server/messages/with_template', $params);
+        return $this->requestObject(
+            'POST',
+            '/api/v2/server/messages/with_template',
+            $params,
+            headers: $this->idempotencyHeaders($idempotencyKey),
+        );
     }
 
     /**
