@@ -13,7 +13,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 
 final class CamelMailer
 {
-    public const VERSION = '0.2.1';
+    public const VERSION = '0.2.2';
 
     public const DEFAULT_BASE_URL = 'https://app.camelmailer.com';
 
