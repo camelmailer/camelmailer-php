@@ -34,11 +34,14 @@ final class InboundTest extends TestCase
     {
         $client = $this->fakeClient();
 
-        $this->http->queueEnvelope(['queued' => true]);
-        $client->inbound->retry(55);
+        // The endpoint answers with `requeued`, and carries the message.
+        $this->http->queueEnvelope(['requeued' => true, 'message' => ['id' => 55]]);
+        $result = $client->inbound->retry(55);
+        $this->assertTrue($result->requeued);
+        $this->assertSame(55, $result['message']['id']);
         $this->assertRequested('POST', '/api/v2/server/inbound/55/retry');
 
-        $this->http->queueEnvelope(['queued' => true]);
+        $this->http->queueEnvelope(['requeued' => true, 'message' => ['id' => 55]]);
         $client->inbound->bypass(55);
         $this->assertRequested('POST', '/api/v2/server/inbound/55/bypass');
     }

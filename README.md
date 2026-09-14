@@ -159,7 +159,7 @@ list is the audience.
 
 ```php
 $camelmailer->subscribers->list('newsletter');
-$camelmailer->subscribers->add('newsletter', ['address' => 'ada@example.com', 'name' => 'Ada']);
+$camelmailer->subscribers->add('newsletter', ['address' => 'ada@example.com']);
 $camelmailer->subscribers->import('newsletter', ['ada@example.com', 'grace@example.com']);
 $camelmailer->subscribers->complaint('newsletter', 'ada@example.com'); // suppress + unsubscribe
 $camelmailer->subscribers->remove('newsletter', 'ada@example.com');
@@ -188,8 +188,8 @@ $camelmailer->layouts->delete('default');
 ```php
 $camelmailer->inbound->list(['status' => 'held']);
 $camelmailer->inbound->get(55);
-$camelmailer->inbound->retry(55);   // back on the delivery queue
-$camelmailer->inbound->bypass(55);  // release past the hold
+$camelmailer->inbound->retry(55)->requeued;   // back on the delivery queue
+$camelmailer->inbound->bypass(55)->requeued;  // release past the hold
 ```
 
 ### Logs
