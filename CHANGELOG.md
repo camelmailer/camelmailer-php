@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-09-14
+
+### Fixed
+
+- The `uploadLogo()` documentation and test read `logo_url`. The endpoint
+  answers with `url`, so anyone following the README read a key that is
+  never there. No call was broken; only the documented shape was wrong.
+
 ## [0.2.1] - 2026-09-14
 
 ### Added
@@ -53,7 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Typed exceptions with stable API error codes (`ErrorException->code`), transport and deserialization exceptions.
 - Immutable `ApiObject` responses with property and `ArrayAccess` reads.
 
-[Unreleased]: https://github.com/camelmailer/camelmailer-php/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/camelmailer/camelmailer-php/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.2.2
 [0.2.1]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.2.1
 [0.2.0]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.2.0
 [0.1.0]: https://github.com/camelmailer/camelmailer-php/releases/tag/v0.1.0
