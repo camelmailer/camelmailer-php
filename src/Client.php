@@ -6,10 +6,15 @@ namespace CamelMailer;
 
 use CamelMailer\Contracts\TransporterInterface;
 use CamelMailer\Resources\Bounces;
+use CamelMailer\Resources\Campaigns;
 use CamelMailer\Resources\Dmarc;
 use CamelMailer\Resources\Emails;
+use CamelMailer\Resources\Inbound;
+use CamelMailer\Resources\Layouts;
+use CamelMailer\Resources\Logs;
 use CamelMailer\Resources\Stats;
 use CamelMailer\Resources\Streams;
+use CamelMailer\Resources\Subscribers;
 use CamelMailer\Resources\Templates;
 
 final class Client
@@ -26,6 +31,16 @@ final class Client
 
     public readonly Dmarc $dmarc;
 
+    public readonly Campaigns $campaigns;
+
+    public readonly Subscribers $subscribers;
+
+    public readonly Layouts $layouts;
+
+    public readonly Inbound $inbound;
+
+    public readonly Logs $logs;
+
     public function __construct(private readonly TransporterInterface $transporter)
     {
         $this->emails = new Emails($transporter);
@@ -34,6 +49,11 @@ final class Client
         $this->stats = new Stats($transporter);
         $this->bounces = new Bounces($transporter);
         $this->dmarc = new Dmarc($transporter);
+        $this->campaigns = new Campaigns($transporter);
+        $this->subscribers = new Subscribers($transporter);
+        $this->layouts = new Layouts($transporter);
+        $this->inbound = new Inbound($transporter);
+        $this->logs = new Logs($transporter);
     }
 
     /**

@@ -10,6 +10,11 @@ namespace CamelMailer\Exceptions;
  * `ParameterMissing`, …) is available as `$exception->code` and
  * `$exception->getErrorCode()`.
  *
+ * Two codes are worth branching on when sending: `SendLimitExceeded` (429)
+ * means the 30-day allowance is used up and nothing was queued, so a retry
+ * once the window moves on will work. `InvalidIdempotentRequest` (409) means
+ * an `Idempotency-Key` was reused for a different body.
+ *
  * @property-read string $code
  */
 final class ErrorException extends CamelMailerException

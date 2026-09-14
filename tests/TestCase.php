@@ -43,4 +43,16 @@ abstract class TestCase extends BaseTestCase
         /** @var array<string, mixed> */
         return json_decode((string) $this->http->lastRequest()->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
+
+    /**
+     * The request body decoded as a JSON array, for endpoints that take a
+     * bare list rather than an object.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function sentJsonList(): array
+    {
+        /** @var list<array<string, mixed>> */
+        return json_decode((string) $this->http->lastRequest()->getBody(), true, 512, JSON_THROW_ON_ERROR);
+    }
 }

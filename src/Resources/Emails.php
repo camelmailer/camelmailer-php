@@ -18,19 +18,46 @@ final class Emails extends Resource
      *
      * @param  array<string, mixed>  $params
      */
-    public function send(array $params): ApiObject
+    public function send(array $params, ?string $idempotencyKey = null): ApiObject
     {
-        return $this->requestObject('POST', '/api/v2/server/messages', $params);
+        return $this->requestObject(
+            'POST',
+            '/api/v2/server/messages',
+            $params,
+            headers: $this->idempotencyHeaders($idempotencyKey),
+        );
+    }
+
+    /**
+     * Send the same content to every subscriber of a broadcast stream.
+     *
+     * Either give `subject` with a body, or a `template` permalink with an
+     * optional `template_model`. The response counts `queued` against
+     * `skipped`: recipients past the per-request cap of 1000 are skipped,
+     * so a larger audience wants a campaign.
+     *
+     * @param  array<string, mixed>  $params
+     */
+    public function sendToStream(string $permalink, array $params): ApiObject
+    {
+        return $this->requestObject('POST', "/api/v2/server/streams/{$permalink}/send", $params);
     }
 
     /**
      * Send a batch of messages; returns one result per entry.
      *
+     * Sent as a bare JSON array, which is what the endpoint expects.
+     *
      * @param  list<array<string, mixed>>  $messages
      */
-    public function sendBatch(array $messages): ApiObject
+    public function sendBatch(array $messages, ?string $idempotencyKey = null): ApiObject
     {
-        return $this->requestObject('POST', '/api/v2/server/messages/batch', ['messages' => $messages]);
+        return $this->requestObject(
+            'POST',
+            '/api/v2/server/messages/batch',
+            $messages,
+            headers: $this->idempotencyHeaders($idempotencyKey),
+        );
     }
 
     /**
@@ -49,9 +76,14 @@ final class Emails extends Resource
      *
      * @param  list<array<string, mixed>>  $messages
      */
-    public function sendWithTemplateBatch(array $messages): ApiObject
+    public function sendWithTemplateBatch(array $messages, ?string $idempotencyKey = null): ApiObject
     {
-        return $this->requestObject('POST', '/api/v2/server/messages/with_template/batch', ['messages' => $messages]);
+        return $this->requestObject(
+            'POST',
+            '/api/v2/server/messages/with_template/batch',
+            $messages,
+            headers: $this->idempotencyHeaders($idempotencyKey),
+        );
     }
 
     /**

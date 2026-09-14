@@ -60,4 +60,25 @@ final class RoundtripTest extends TestCase
 
         $this->assertIsArray($messages->toArray());
     }
+
+    public function test_campaigns_roundtrip(): void
+    {
+        $this->assertIsArray($this->client->campaigns->list()->toArray());
+    }
+
+    public function test_layouts_roundtrip(): void
+    {
+        $this->assertIsArray($this->client->layouts->list()->toArray());
+    }
+
+    public function test_inbound_roundtrip(): void
+    {
+        $this->assertIsArray($this->client->inbound->list(['per_page' => 1])->toArray());
+    }
+
+    public function test_logs_roundtrip(): void
+    {
+        $this->assertIsArray($this->client->logs->list(['per_page' => 1])->toArray());
+        $this->assertIsArray($this->client->logs->tags()->toArray());
+    }
 }
