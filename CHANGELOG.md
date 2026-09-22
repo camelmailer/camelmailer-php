@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Guzzle 8 support: `guzzlehttp/guzzle` ^7.5 || ^8.0. Laravel 13 installs
+  Guzzle 8 by default, which the SDK could not be installed beside. The
+  client needed no change; CI now also runs against Guzzle 7 on PHP 8.4.
+
 ## [0.2.3] - 2026-09-14
 
 ### Fixed
